@@ -1,0 +1,42 @@
+\documentclass[12pt, a4paper, twoside]{article}
+\usepackage[utf8]{inputenc}
+
+
+\title{Rolling updates}
+\author{Silvia Kuchtová}
+\date{2021}
+
+
+\begin{document}
+	\maketitle
+\begin{abstract}
+
+	V tomto článku sme predstavili priebežné aktualizácie, funkciu, ktorá je užitočná, pretože umožňuje aktualizovať bežiace aplikácie na novšie verzie bez prerušenia prevádzky. Vo väčšine prípadov je implementácia priebežných aktualizácií pomerne jednoduché. Sú natívne podporované vo viacerých orchestrátoroch vrátane Kubernetes.
+\end{abstract}
+
+\section{Čo sú priebežné aktualizácie}
+
+	Väčšina programov sa časom aktualizuje, zvyčajne prostredníctvom štandardného vydania aktualizácie. Pri štandardných aktualizáciách vývojár softvéru vytvorí úplne novú verziu programu a aktualizácie sa bežne objavujú každých niekoľko týždňov alebo mesiacov. Ak vývojár používa schému priebežného vydávania, postupuje sa inak. Namiesto zriedkavých aktualizácií sa aktualizácie bežne vykonávajú každý deň alebo každých niekoľko dní. Vývojár tiež pracuje len na aktualizácii jednej programovej vetvy, zatiaľ čo štandardné aktualizácie pracujú na viacerých vetvách.\\
+Priebežné aktualizovanie je preto postup pri aktualizácii softvéru, ktorý namiesto vytvárania veľkých aktualizácií naraz zahŕňa mnoho priebežných aktualizácií.  Výhodou tejto metódy je, že aktualizácie vychádzajú oveľa rýchlejšie a zvyčajne sa s nimi programátorom ľahšie pracuje. Zároveň však aktualizácie nemusia byť také dôkladné.\\
+
+\section{Ako priebežné aktualizácie fungujú}
+
+
+
+	Pri tradičnej aktualizácii softvéru sa aplikačné servery odstavia, kým sa ich softvér aktualizuje a testuje, a potom sa opäť uvedú do prevádzky. To môže mať za následok značné prestoje aplikácie - najmä ak neočakávané chyby alebo problémy prinútia vývojára vrátiť inštaláciu na predchádzajúcu verziu. Pri priebežnej aktualizácii je v danom čase mimo prevádzky len časť kapacity servera pre aplikáciu. Príkladom môže byť trojvrstvová aplikácia pozostávajúca z front end, back end a databázy,  s tromi uzlami v každej vrstve. Každý z troch uzlov front-end aplikačného servera prijíma prevádzku cez load balancer (vyrovnávanie záťaže). Pri tradičnej aktualizácii vyrovnávač záťaže uzavrie všetku prevádzku aplikácie, aby servery prešli do režimu offline a aktualizovali sa. Pri priebežnom nasadení môže organizácia vyradiť jeden z uzlov v každej vrstve z prevádzky, pričom vyrovnávač záťaže je nakonfigurovaný tak, aby presmeroval prevádzku na zostávajúce servery, na ktorých stále beží overená, aktuálna verzia softvéru. Nečinné servery prijímajú aktualizácie a testujú sa; zostávajúce servery v režime online podporujú prevádzku používateľov.\\
+	Priebežné aktualizácie môžu zahŕňať testovaciu fázu, v ktorej vyrovnávač záťaže smeruje len obmedzenú alebo testovaciu prevádzku, kým sa nový softvér nakonfiguruje a vyskúša. To nemá vplyv na  používateľov, ktorí stále pristupujú k aplikácii na zostávajúcich serveroch, ktoré ešte neboli aktualizované.\\
+Po úspešnom otestovaní softvéru sa server vráti do prevádzky a ďalší uzol servera sa odpojí, aby sa proces zopakoval, pričom sa pokračuje, kým nie sú všetky uzly servera v klastri aktualizované a beží na nich požadovaná verzia softvéru aplikácie. Celá aplikácia bola nepretržite dostupná počas celého postupného aktualizovania.\\
+	Priebežné nasadenie si nevyžaduje takú veľkú kapacitu základných zdrojov IT ako modré/zelené nasadenie, pri ktorom sa aktualizácia uskutočňuje v jednom celom produkčnom prostredí, zatiaľ čo v identickom produkčnom prostredí beží predchádzajúca verzia softvéru pre používateľa.
+
+\section{Výhody a nevýhody}
+	Jednou z hlavných výhod priebežného vydávania pre vývojára je, že zvyčajne môže aktualizácie vytvárať v malom časovom úseku. Aktualizovaný program bude tiež často fungovať lepšie. Program je neustále aktualizovaný, takže by mal zaznamenať vyššiu rýchlosť aplikácie a chyby by mali byť rýchlo odstránené.\\
+	Hoci má priebežné vydávanie programu svoje výhody, má aj niektoré nevýhody. Pri štandardných aktualizáciách má vývojár dostatok času na diagnostikovanie prípadných chýb alebo závažných problémov ovplyvňujúcich program. V schéme priebežných aktualizácií vývojár neustále vykonáva aktualizácie, takže si nemusí všimnúť závažné problémy. Je tiež menej času na testovanie aktualizácií, takže sa môžu vyskytnúť zjavné chyby, ktoré by sa pri štandardných aktualizáciách opravili. Program sa mení tak často, že aj keď sú zmeny malé, robia softvér zraniteľným voči vírusom a hackerským problémom.
+
+
+\section{Blue/green model}
+Blue/green deployment je model vydania aplikácie, ktorý postupne prenáša používateľskú prevádzku z predchádzajúcej verzie aplikácie  na takmer identickú novú verziu. \\
+Stará verzia sa môže nazývať modré prostredie, zatiaľ čo nová verzia sa môže označovať ako zelené prostredie. Po úplnom prenose produkčnej prevádzky z modrého do zeleného prostredia môže byť modré prostredie v pohotovostnom režime pre prípad vrátenia alebo stiahnutia z produkcie a aktualizácie, aby sa stalo šablónou, na základe ktorej sa vykoná ďalšia aktualizácia.
+
+
+
+\end{document}
